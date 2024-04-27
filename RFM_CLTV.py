@@ -195,7 +195,7 @@ def main():
     months = st.sidebar.slider("Months for CLV Prediction", 1, 24, 12)
     if st.sidebar.button("Calculate CLV"):
         clv_predictions = fit_clv_models(rfm_segmented, months)
-        st.write("CLV Predictions:", clv_predictions.head())
+        st.write("CLV Predictions:", clv_predictions)
         st.success("CLV calculated successfully.")
 
 
