@@ -1,15 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="4c152c91-93b0-4c60-8e64-4b4d43cfb9d5" name="Changes" comment="" />
+    <list default="true" id="4c152c91-93b0-4c60-8e64-4b4d43cfb9d5" name="Changes" comment="&quot;More functions added and script is optimized.&quot;">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ChangesViewManager" show_ignored="true">
+    <option name="groupingKeys">
+      <option value="directory" />
+    </option>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Sicakyuz"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Sicakyuz/RFM_CLTV.git",
+    "accountId": "2c481d13-db40-4614-80ce-13923018874b"
+  }
+}]]></component>
   <component name="ProjectColorInfo"><![CDATA[{
   "associatedIndex": 2
 }]]></component>
@@ -23,9 +52,15 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master"
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/Users/asmir/Desktop/Enerji/CRM"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -42,6 +77,61 @@
       <option name="presentableId" value="Default" />
       <updated>1714225561892</updated>
     </task>
+    <task id="LOCAL-00001" summary="&quot;ilk commit&quot;">
+      <option name="closed" value="true" />
+      <created>1714225717700</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1714225717700</updated>
+    </task>
+    <task id="LOCAL-00002" summary="&quot;Data is added.&quot;">
+      <option name="closed" value="true" />
+      <created>1714226425246</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1714226425246</updated>
+    </task>
+    <task id="LOCAL-00003" summary="&quot;Data is added.&quot;">
+      <option name="closed" value="true" />
+      <created>1714226442431</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1714226442431</updated>
+    </task>
+    <task id="LOCAL-00004" summary="&quot;Data is added.&quot;">
+      <option name="closed" value="true" />
+      <created>1714226575463</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1714226575463</updated>
+    </task>
+    <task id="LOCAL-00005" summary="&quot;More functions added and script is optimized.&quot;">
+      <option name="closed" value="true" />
+      <created>1714284446536</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1714284446536</updated>
+    </task>
+    <task id="LOCAL-00006" summary="&quot;More functions added and script is optimized.&quot;">
+      <option name="closed" value="true" />
+      <created>1714284462914</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1714284462914</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="&quot;ilk commit&quot;" />
+    <MESSAGE value="&quot;Data is added.&quot;" />
+    <MESSAGE value="&quot;More functions added and script is optimized.&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="&quot;More functions added and script is optimized.&quot;" />
   </component>
 </project>
