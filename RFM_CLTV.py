@@ -328,7 +328,34 @@ def get_user_input(rfm):
             st.write(f'New Customer Segment: {segment}')
         else:
             st.warning('Could not identify a segment outside the defined segments.')
+def configure_theme():
+    # Dark tema
+    st.markdown(
+        """
+        <style>
+        .reportview-container {
+            background: #171b29;
+            color: white;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
+    # Primary color olarak #4BFF51 kullan
+    st.markdown(
+        """
+        <style>
+        .css-1k3w8o4 {
+            color: #4BFF51 !important;
+        }
+        .css-8vdgxe {
+            color: #4BFF51 !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 def main():
     st.title("Customer Lifetime Value Prediction")
     # Informative note
@@ -348,6 +375,7 @@ def main():
         </style>
         """, unsafe_allow_html=True)
 
+    configure_theme()
     uploaded_file = st.sidebar.file_uploader("Choose a file")
     if uploaded_file is not None:
         df = load_data(uploaded_file)
@@ -367,6 +395,12 @@ def main():
             if st.checkbox('Show Geographic Distribution', False):
                 fig_geo = display_geographic_distribution(df_preprocessed)
                 st.plotly_chart(fig_geo, use_container_width=True)
+
+        if 'observation_date' not in st.session_state:
+            observation_date = st.date_input('Observation Date', min_value=df_preprocessed['InvoiceDate'].min(),
+                                             max_value=df_preprocessed['InvoiceDate'].max(),
+                                             value=df_preprocessed['InvoiceDate'].max())
+            st.session_state.observation_date = observation_date
 
         if 'observation_date' in st.session_state:
             rfm = calculate_rfm(df_preprocessed, st.session_state.observation_date)
