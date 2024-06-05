@@ -139,6 +139,9 @@ def segment_customers(rfm):
 # Fit CLV models
 def fit_clv_models(rfm, months):
     rfm = rfm.drop(columns=['CustomerID'])
+    rfm = rfm[(rfm['Frequency'] > 0) & (rfm['Recency'] > 0) & (rfm['T'] > 0)]
+    if rfm.empty:
+        raise ValueError("All 'Recency', 'Frequency', and 'T' values must be greater than 0.")
 
     bgf = BetaGeoFitter(penalizer_coef=0.01)
     ggf = GammaGammaFitter(penalizer_coef=0.01)
