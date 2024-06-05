@@ -397,9 +397,7 @@ def main():
                 st.plotly_chart(fig_geo, use_container_width=True)
 
         if 'observation_date' not in st.session_state:
-            observation_date = st.date_input('Observation Date', min_value=df_preprocessed['InvoiceDate'].min(),
-                                             max_value=df_preprocessed['InvoiceDate'].max(),
-                                             value=df_preprocessed['InvoiceDate'].max())
+            observation_date = st.date_input("Observation Date", max_value=pd.to_datetime("today"))
             st.session_state.observation_date = observation_date
 
         if 'observation_date' in st.session_state:
