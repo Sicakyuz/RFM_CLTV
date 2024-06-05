@@ -17,15 +17,15 @@ pd.set_option('display.float_format', lambda x: '%.3f' % x)
 st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # Load data from Excel file
-@st.cache(allow_output_mutation=True)
+@st.cache_resource
 def load_data(upload_file):
     return pd.read_excel(upload_file)
 
 # Preprocess the dataset
 def preprocess(df):
     df = df[df['Quantity'] > 0]
-    df.dropna(subset=['Customer ID'], inplace=True)
-    df['Customer ID'] = df['Customer ID'].astype(str)
+    df.dropna(subset=['CustomerID'], inplace=True)
+    df['CustomerID'] = df['CustomerID'].astype(str)
     df['Invoice'] = df['Invoice'].astype(str)
     df["StockCode"]= df["StockCode"].astype(str)
     df = df[~df["Invoice"].str.contains("C", na=False)]
@@ -34,7 +34,7 @@ def preprocess(df):
 
 # Display data summary
 def show_data_summary(df):
-    df['Customer ID'] = df['Customer ID'].astype(str)
+    df['CustomerID'] = df['CustomerID'].astype(str)
     st.write(df.describe())
 
 # Display top N categories by sales
@@ -60,11 +60,14 @@ def display_sales_for_category(df):
     unique_stockcodes.sort()
     selected_category = st.selectbox('Select a Category', unique_stockcodes)
     df_filtered = df[df['StockCode'] == selected_category]
-    fig_filtered = px.bar(df_filtered, x='StockCode', y='TotalPrice', title=f'Sales for {selected_category}')
+
+    fig_filtered = px.line(df_filtered, x='InvoiceDate', y='TotalPrice', title=f'Sales for {selected_category}')
+    fig_filtered.update_xaxes(title='Date')
+    fig_filtered.update_yaxes(title='Total Sales')
     st.plotly_chart(fig_filtered, use_container_width=True)
 
 # Display geographic distribution of sales
-@st.cache_data
+@st.cache_resource
 def display_geographic_distribution(df, show_map=True):
     if show_map:
         country_sales = df.groupby('Country')['TotalPrice'].sum().reset_index()
@@ -93,13 +96,13 @@ def calculate_rfm(df, observation_date):
     df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
     max_date = df['InvoiceDate'].max() if observation_date is None else pd.to_datetime(observation_date)
 
-    rfm = df.groupby('Customer ID').agg({
+    rfm = df.groupby('CustomerID').agg({
         'InvoiceDate': lambda x: (max_date - x.max()).days,
         'Invoice': 'nunique',
         'TotalPrice': 'sum'
     }).rename(columns={'InvoiceDate': 'Recency', 'Invoice': 'Frequency', 'TotalPrice': 'Monetary'})
 
-    rfm['T'] = df.groupby('Customer ID')['InvoiceDate'].apply(lambda x: (max_date - x.min()).days)
+    rfm['T'] = df.groupby('CustomerID')['InvoiceDate'].apply(lambda x: (max_date - x.min()).days)
     rfm = rfm.reset_index()
     return rfm
 
@@ -134,7 +137,7 @@ def segment_customers(rfm):
 
 # Fit CLV models
 def fit_clv_models(rfm, months):
-    rfm = rfm.drop(columns=['Customer ID'])
+    rfm = rfm.drop(columns=['CustomerID'])
 
     bgf = BetaGeoFitter(penalizer_coef=0.01)
     ggf = GammaGammaFitter(penalizer_coef=0.01)
@@ -215,7 +218,7 @@ def analyze_unique_products(df, rfm_segmented):
     st.header("Unique Products Purchased by Customer Segments")
 
     rfm_segmented.reset_index(inplace=True)
-    df_merged = df.merge(rfm_segmented[['Customer ID', 'Segment']], on='Customer ID', how='left')
+    df_merged = df.merge(rfm_segmented[['CustomerID', 'Segment']], on='CustomerID', how='left')
 
     unique_products = df_merged.groupby('Segment')['Description'].nunique().reset_index()
     unique_products.columns = ['Segment', 'Unique Products']
@@ -228,7 +231,7 @@ def analyze_unique_products(df, rfm_segmented):
 def visualize_product_popularity(df, rfm_segmented):
     st.header("Product Popularity by Segments")
 
-    df_merged = df.merge(rfm_segmented[['Customer ID', 'Segment']], on='Customer ID', how='left')
+    df_merged = df.merge(rfm_segmented[['CustomerID', 'Segment']], on='CustomerID', how='left')
     segment_product_counts = df_merged.groupby(['Segment', 'Description'])['Invoice'].count().reset_index()
     segment_product_counts.columns = ['Segment', 'Description', 'Count']
     top_products_per_segment = segment_product_counts.groupby('Segment').apply(lambda x: x.sort_values('Count', ascending=False).head(10))
@@ -242,7 +245,7 @@ def display_clv_predictions(rfm, months):
     clv_predictions = fit_clv_models(rfm, months)
 
     clv_df = clv_predictions.reset_index()
-    clv_df.columns = ['Customer ID', 'CLV']
+    clv_df.columns = ['CustomerID', 'CLV']
     clv_df['CLV'] = clv_df['CLV'].apply(lambda x: round(x, 2))
 
     st.header("Customer Lifetime Value Predictions")
@@ -312,7 +315,7 @@ def segment_new_customer(rfm, recency, frequency, monetary):
 # Form for user input to segment a new customer
 def get_user_input(rfm):
     st.subheader('Enter New Customer Details')
-    customer_id = st.text_input('Customer ID:', 'NewCustomer')
+    customer_id = st.text_input('CustomerID:', 'NewCustomer')
     recency = st.number_input('Number of days since last purchase (Recency):', min_value=0, value=30)
     frequency = st.number_input('Total number of purchases (Frequency):', min_value=0, value=2)
     monetary = st.number_input('Total amount spent (Monetary):', min_value=0.0, value=100.0)
@@ -325,23 +328,52 @@ def get_user_input(rfm):
         else:
             st.warning('Could not identify a segment outside the defined segments.')
 
-# Streamlit application logic
-import streamlit as st
-
 def main():
     st.title("Customer Lifetime Value Prediction")
+    # Informative note
+    with st.expander("**ℹ️ Welcome to the Customer Lifetime Value Prediction App**"):
+        st.markdown("""
+            This app allows you to analyze and predict customer lifetime value based on RFM (Recency, Frequency, Monetary) analysis. 
+            Use the sidebar to upload your data file and select different analysis tabs.
+            """)
+
+    # Stil değişiklikleri
+    st.markdown("""
+        <style>
+            /* Bilgilendirme notunun rengini değiştir */
+            .st-bj {
+                background-color: #dfe6e9 !important;
+                color: black !important;
+                border-radius: 10px !important;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # File upload
+    uploaded_file = st.sidebar.file_uploader("Choose a file")
+
     if 'df' not in st.session_state:
         uploaded_file = st.sidebar.file_uploader("Choose a file")
         if uploaded_file is not None:
             df = load_data(uploaded_file)
             st.session_state.df = df
+    # Add custom CSS to style the tabs
+    st.markdown("""
+    <style>
+    .css-1h1j0y3 {
+        font-size: 20px !important;
+        font-weight: bold !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
     if 'df' in st.session_state:
         df_preprocessed = preprocess(st.session_state.df)
+
         tab1, tab2, tab3 = st.tabs(["Pre-analysis", "RFM Analysis", "CLV Prediction"])
 
         with tab1:
-            st.subheader("Data Preview:")
+            st.markdown("<h3 style='font-size: 18px;'>Data Preview:</h3>", unsafe_allow_html=True)
             st.write("Raw Data")
             show_data_summary(st.session_state.df)
             if st.checkbox('Show raw data'):
