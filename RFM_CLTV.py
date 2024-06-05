@@ -350,7 +350,6 @@ def main():
     """, unsafe_allow_html=True)
 
     # File upload
-    uploaded_file = st.sidebar.file_uploader("Choose a file")
 
     if 'df' not in st.session_state:
         uploaded_file = st.sidebar.file_uploader("Choose a file")
