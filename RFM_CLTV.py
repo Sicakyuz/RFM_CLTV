@@ -1,10 +1,11 @@
-import pandas as pd
 import streamlit as st
+import matplotlib.pyplot as plt
+plt.switch_backend('Agg')  # Set the Matplotlib backend
+import pandas as pd
 from lifetimes import BetaGeoFitter, GammaGammaFitter
 from lifetimes.plotting import plot_period_transactions
 from sklearn.model_selection import train_test_split
 import datetime as dt
-import matplotlib.pyplot as plt
 import plotly.express as px
 import seaborn as sns
 import numpy as np
@@ -14,7 +15,6 @@ import plotly.figure_factory as ff
 # Set options for pandas display and float format
 pd.set_option('display.max_columns', None)
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
-st.set_option('deprecation.showPyplotGlobalUse', False)
 
 # Load data from Excel file
 @st.cache_resource
@@ -23,8 +23,7 @@ def load_data(upload_file):
 
 # Preprocess the dataset
 def preprocess(df):
-    df = df[df['Quantity'] > 0]
-    df.dropna(subset=['CustomerID'], inplace=True)
+    df = df.dropna(subset=['CustomerID'])
     df['CustomerID'] = df['CustomerID'].astype(str)
     df['Invoice'] = df['Invoice'].astype(str)
     df["StockCode"]= df["StockCode"].astype(str)
@@ -34,7 +33,6 @@ def preprocess(df):
 
 # Display data summary
 def show_data_summary(df):
-    df['CustomerID'] = df['CustomerID'].astype(str)
     st.write(df.describe())
 
 # Display top N categories by sales
@@ -53,7 +51,6 @@ def display_grouped_sales(df):
                          category_orders={"StockCode": df_grouped['StockCode'].tolist()})
     fig_grouped.update_layout(xaxis_type='category')
     st.plotly_chart(fig_grouped, use_container_width=True)
-
 # Display sales for a selected category
 def display_sales_for_category(df):
     unique_stockcodes = df['StockCode'].unique().tolist()
@@ -67,29 +64,27 @@ def display_sales_for_category(df):
     st.plotly_chart(fig_filtered, use_container_width=True)
 
 # Display geographic distribution of sales
+
 @st.cache_resource
-def display_geographic_distribution(df, show_map=True):
-    if show_map:
-        country_sales = df.groupby('Country')['TotalPrice'].sum().reset_index()
-        fig_geo = px.choropleth(
-            country_sales,
-            locations='Country',
-            color='TotalPrice',
-            locationmode='country names',
-            color_continuous_scale=px.colors.sequential.Viridis, # Belirgin renk skalası kullanımı
-            range_color=[country_sales['TotalPrice'].min(), country_sales['TotalPrice'].max()], # Renk skalası aralığını belirleme
-            title='Geographic Distribution of Sales'
+def display_geographic_distribution(df):
+    country_sales = df.groupby('Country')['TotalPrice'].sum().reset_index()
+    fig_geo = px.choropleth(
+        country_sales,
+        locations='Country',
+        color='TotalPrice',
+        locationmode='country names',
+        color_continuous_scale=px.colors.sequential.Viridis,
+        range_color=[country_sales['TotalPrice'].min(), country_sales['TotalPrice'].max()],
+        title='Geographic Distribution of Sales'
+    )
+    fig_geo.update_layout(
+        coloraxis_colorbar=dict(
+            title='Total Sales',
+            tickprefix='$',
+            ticks='outside'
         )
-        fig_geo.update_layout(
-            coloraxis_colorbar=dict(
-                title='Total Sales', # Renk barındaki başlığı belirleme
-                tickprefix='$', # Renk barındaki sayıların önüne dolar işareti ekleme
-                ticks='outside'
-            )
-        )
-        st.plotly_chart(fig_geo, use_container_width=True)
-    else:
-        st.info("Select a category to display the map")
+    )
+    return fig_geo
 
 # Calculate RFM values
 def calculate_rfm(df, observation_date):
@@ -333,49 +328,39 @@ def main():
     # Informative note
     with st.expander("**ℹ️ Welcome to the Customer Lifetime Value Prediction App**"):
         st.markdown("""
-            This app allows you to analyze and predict customer lifetime value based on RFM (Recency, Frequency, Monetary) analysis. 
-            Use the sidebar to upload your data file and select different analysis tabs.
-            """)
+                This app allows you to analyze and predict customer lifetime value based on RFM (Recency, Frequency, Monetary) analysis. 
+                Use the sidebar to upload your data file and select different analysis tabs.
+                """)
 
     # Stil değişiklikleri
-
-
-    # File upload
-
-    if 'df' not in st.session_state:
-        uploaded_file = st.sidebar.file_uploader("Choose a file")
-        if uploaded_file is not None:
-            df = load_data(uploaded_file)
-            st.session_state.df = df
-    # Add custom CSS to style the tabs
     st.markdown("""
-    <style>
-    .css-1h1j0y3 {
-        font-size: 20px !important;
-        font-weight: bold !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+        <style>
+        .css-1h1j0y3 {
+            font-size: 20px !important;
+            font-weight: bold !important;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-    if 'df' in st.session_state:
-        df_preprocessed = preprocess(st.session_state.df)
+    uploaded_file = st.sidebar.file_uploader("Choose a file")
+    if uploaded_file is not None:
+        df = load_data(uploaded_file)
+        df_preprocessed = preprocess(df)
 
         tab1, tab2, tab3 = st.tabs(["Pre-analysis", "RFM Analysis", "CLV Prediction"])
 
         with tab1:
             st.markdown("<h3 style='font-size: 18px;'>Data Preview:</h3>", unsafe_allow_html=True)
             st.write("Raw Data")
-            show_data_summary(st.session_state.df)
+            show_data_summary(df)
             if st.checkbox('Show raw data'):
                 st.write(df_preprocessed.head())
             display_top_n(df_preprocessed)
             display_grouped_sales(df_preprocessed)
             display_sales_for_category(df_preprocessed)
-            show_map = st.checkbox('Show Geographic Distribution')
-            display_geographic_distribution(df_preprocessed, show_map)
-
-            observation_date = st.date_input("Observation Date", max_value=pd.to_datetime("today"))
-            st.session_state.observation_date = observation_date
+            if st.checkbox('Show Geographic Distribution', False):
+                fig_geo = display_geographic_distribution(df_preprocessed)
+                st.plotly_chart(fig_geo, use_container_width=True)
 
         if 'observation_date' in st.session_state:
             rfm = calculate_rfm(df_preprocessed, st.session_state.observation_date)
