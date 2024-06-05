@@ -29,6 +29,10 @@ def preprocess(df):
     df["StockCode"]= df["StockCode"].astype(str)
     df = df[~df["Invoice"].str.contains("C", na=False)]
     df['TotalPrice'] = df['Quantity'] * df['Price']
+
+    # Convert 'InvoiceDate' column to datetime64 type
+    df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
+
     return df
 
 # Display data summary
@@ -86,9 +90,11 @@ def display_geographic_distribution(df):
     )
     return fig_geo
 
+
 # Calculate RFM values
 def calculate_rfm(df, observation_date):
     df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
+
     max_date = df['InvoiceDate'].max() if observation_date is None else pd.to_datetime(observation_date)
 
     rfm = df.groupby('CustomerID').agg({
@@ -365,24 +371,24 @@ def main():
         if 'observation_date' in st.session_state:
             rfm = calculate_rfm(df_preprocessed, st.session_state.observation_date)
 
-            with tab2:
-                st.subheader("RFM Analysis")
-                st.write(rfm.head())
-                rfm_segmented = segment_customers(rfm)
-                display_visualizations(rfm_segmented)
-                analyze_distribution(rfm)
-                if st.button("Analyze Unique Products by Segment"):
-                    analyze_unique_products(df_preprocessed, rfm_segmented)
-                if st.button("Visualize Product Popularity by Segment"):
-                    visualize_product_popularity(df_preprocessed, rfm_segmented)
-                st.title('New Customer Segmentation')
-                get_user_input(rfm_segmented)
+        with tab2:
+            st.subheader("RFM Analysis")
+            st.write(rfm.head())
+            rfm_segmented = segment_customers(rfm)
+            display_visualizations(rfm_segmented)
+            analyze_distribution(rfm)
+            if st.button("Analyze Unique Products by Segment"):
+                analyze_unique_products(df_preprocessed, rfm_segmented)
+            if st.button("Visualize Product Popularity by Segment"):
+                visualize_product_popularity(df_preprocessed, rfm_segmented)
+            st.title('New Customer Segmentation')
+            get_user_input(rfm_segmented)
 
-            with tab3:
-                st.subheader("CLV Prediction")
-                months = st.slider("Months for CLV Prediction", 1, 24, 12)
-                clv_predictions_df = display_clv_predictions(rfm_segmented, months)
-                st.success("CLV calculated and displayed successfully.")
+        with tab3:
+            st.subheader("CLV Prediction")
+            months = st.slider("Months for CLV Prediction", 1, 24, 12)
+            clv_predictions_df = display_clv_predictions(rfm_segmented, months)
+            st.success("CLV calculated and displayed successfully.")
 
 if __name__ == "__main__":
     main()
