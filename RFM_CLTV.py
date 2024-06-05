@@ -338,16 +338,7 @@ def main():
             """)
 
     # Stil değişiklikleri
-    st.markdown("""
-        <style>
-            /* Bilgilendirme notunun rengini değiştir */
-            .st-bj {
-                background-color: #dfe6e9 !important;
-                color: black !important;
-                border-radius: 10px !important;
-            }
-        </style>
-    """, unsafe_allow_html=True)
+
 
     # File upload
 
