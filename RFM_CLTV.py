@@ -370,19 +370,18 @@ def main():
 
         if 'observation_date' in st.session_state:
             rfm = calculate_rfm(df_preprocessed, st.session_state.observation_date)
-
-        with tab2:
-            st.subheader("RFM Analysis")
-            st.write(rfm.head())
-            rfm_segmented = segment_customers(rfm)
-            display_visualizations(rfm_segmented)
-            analyze_distribution(rfm)
-            if st.button("Analyze Unique Products by Segment"):
-                analyze_unique_products(df_preprocessed, rfm_segmented)
-            if st.button("Visualize Product Popularity by Segment"):
-                visualize_product_popularity(df_preprocessed, rfm_segmented)
-            st.title('New Customer Segmentation')
-            get_user_input(rfm_segmented)
+            with tab2:
+                st.subheader("RFM Analysis")
+                st.write(rfm.head())
+                rfm_segmented = segment_customers(rfm)
+                display_visualizations(rfm_segmented)
+                analyze_distribution(rfm)
+                if st.button("Analyze Unique Products by Segment"):
+                    analyze_unique_products(df_preprocessed, rfm_segmented)
+                if st.button("Visualize Product Popularity by Segment"):
+                    visualize_product_popularity(df_preprocessed, rfm_segmented)
+                st.title('New Customer Segmentation')
+                get_user_input(rfm_segmented)
 
         with tab3:
             st.subheader("CLV Prediction")
