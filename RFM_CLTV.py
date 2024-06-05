@@ -370,10 +370,10 @@ def main():
 
         if 'observation_date' in st.session_state:
             rfm = calculate_rfm(df_preprocessed, st.session_state.observation_date)
+            rfm_segmented = segment_customers(rfm)
             with tab2:
                 st.subheader("RFM Analysis")
                 st.write(rfm.head())
-                rfm_segmented = segment_customers(rfm)
                 display_visualizations(rfm_segmented)
                 analyze_distribution(rfm)
                 if st.button("Analyze Unique Products by Segment"):
@@ -383,11 +383,12 @@ def main():
                 st.title('New Customer Segmentation')
                 get_user_input(rfm_segmented)
 
-        with tab3:
-            st.subheader("CLV Prediction")
-            months = st.slider("Months for CLV Prediction", 1, 24, 12)
-            clv_predictions_df = display_clv_predictions(rfm_segmented, months)
-            st.success("CLV calculated and displayed successfully.")
+            with tab3:
+                st.subheader("CLV Prediction")
+                months = st.slider("Months for CLV Prediction", 1, 24, 12)
+                if 'observation_date' in st.session_state:
+                    clv_predictions_df = display_clv_predictions(rfm_segmented, months)
+                    st.success("CLV calculated and displayed successfully.")
 
 if __name__ == "__main__":
     main()
